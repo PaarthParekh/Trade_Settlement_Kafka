@@ -1,10 +1,13 @@
 package Consumer;
 
+import Model.TradeSettlement;
+import jakarta.xml.bind.JAXBContext;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import jakarta.xml.bind.Unmarshaller;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -32,6 +35,9 @@ public class SettlementConsumer {
         System.out.println("Subscribed to topic:"+topicName +"waiting for trades ...\n");
 
         try{
+            JAXBContext context = JAXBContext.newInstance(TradeSettlement.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            ConverterXML converter = new ConverterXML();
             while (true){
                 ConsumerRecords <String,String> records= consumer.poll(Duration.ofMillis(1000));
 
@@ -42,6 +48,8 @@ public class SettlementConsumer {
                     System.out.println("XML Payload:");
                     System.out.println(record.value());
                     System.out.println("========================================\n");
+
+                    converter.Converter(record,unmarshaller);
                 }
             }
         }
